@@ -4,7 +4,9 @@ import org.joml.*;
 import java.lang.Math;
 
 public class Config {
+    public static final int BLOCK_DATA_SIZE = 1; // In bytes, for serialization
     public static final Vector3i CHUNK_SIZE = new Vector3i(16, 128, 16);
+    public static final int CHUNK_BLOCK_COUNT = CHUNK_SIZE.x * CHUNK_SIZE.y * CHUNK_SIZE.z;
     public static final float PHYSICS_EPSILON = 1.0e-3f;
     public static final float RAYCAST_EPSILON = 1.0e-6f;
     public static final float CAMERA_MAX_PITCH = (float) Math.toRadians(89.0f);

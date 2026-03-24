@@ -14,7 +14,8 @@
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
-        <lwjgl.version>3.2.2</lwjgl.version>
+        <lwjgl.version>3.3.3</lwjgl.version>
+        <imgui.version>1.89.0</imgui.version>
         <junit.version>5.4.2</junit.version>
     </properties>
 
@@ -65,6 +66,16 @@
             <classifier>${lwjgl.classifier}</classifier>
         </dependency>
         <dependency>
+            <groupId>io.github.spair</groupId>
+            <artifactId>imgui-java-binding</artifactId>
+            <version>${imgui.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.spair</groupId>
+            <artifactId>imgui-java-lwjgl3</artifactId>
+            <version>${imgui.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
             <scope>test</scope>
@@ -92,6 +103,13 @@
             <properties>
                 <lwjgl.classifier>natives-windows</lwjgl.classifier>
             </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>io.github.spair</groupId>
+                    <artifactId>imgui-java-natives-windows</artifactId>
+                    <version>${imgui.version}</version>
+                </dependency>
+            </dependencies>
         </profile>
         <profile>
             <id>mac</id>
@@ -104,6 +122,13 @@
             <properties>
                 <lwjgl.classifier>natives-macos</lwjgl.classifier>
             </properties>
+                <dependencies>
+                    <dependency>
+                        <groupId>io.github.spair</groupId>
+                        <artifactId>imgui-java-natives-macos</artifactId>
+                        <version>${imgui.version}</version>
+                    </dependency>
+                </dependencies>
         </profile>
         <profile>
             <id>linux</id>
@@ -116,6 +141,13 @@
             <properties>
                 <lwjgl.classifier>natives-linux</lwjgl.classifier>
             </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>io.github.spair</groupId>
+                    <artifactId>imgui-java-natives-linux</artifactId>
+                    <version>${imgui.version}</version>
+                </dependency>
+            </dependencies>
         </profile>
     </profiles>
 
@@ -135,7 +167,7 @@
                             <transformers>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.ee.Main</mainClass>
+                                    <mainClass>com.ee.Client.Main</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>

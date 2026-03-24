@@ -40,9 +40,8 @@ public class ChunkRenderer extends Chunk {
                 }
             }
         }
-        System.out
-                .println("Generated mesh for chunk at " + worldPosition + " with " + vertices.size() + " vertices and "
-                        + indices.size() / 3 + " triangles.");
+        System.out.println("[CHUNK RENDER] Gen mesh, pos: " + worldPosition + ", vert: " + vertices.size() + ", tri: "
+                + indices.size() / 3);
     }
 
     private void GenerateBlockMesh(Vector3i position, ArrayList<ChunkMeshVertex> vertices, ArrayList<Integer> indices) {

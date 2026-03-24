@@ -4,3 +4,6 @@ hs_err_*
 
 # VSCode settings
 .vscode/
+
+# Imgui artifacts
+*imgui.ini

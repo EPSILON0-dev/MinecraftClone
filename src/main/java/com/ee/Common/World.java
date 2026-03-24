@@ -73,6 +73,14 @@ public class World {
         }
     }
 
+    public Chunk getChunk(Vector2i chunkPos) {
+        return chunks.getOrDefault(chunkPos, null);
+    }
+
+    public Chunk getChunkAtPos(Vector3i chunkPos) {
+        return chunks.getOrDefault(getChunkInWorld(chunkPos), null);
+    }
+
     public boolean isSolid(int x, int y, int z) {
         return getBlockNoThrow(new Vector3i(x, y, z)).type != BlockType.Air;
     }
@@ -99,7 +107,7 @@ public class World {
                 (position.x < maxPos.x) && (position.y < maxPos.y) && (position.z < maxPos.z);
     }
 
-    private Vector3i getBlockInChunk(Vector3i position) {
+    public static Vector3i getBlockInChunk(Vector3i position) {
         int x = (position.x >= 0) ? position.x % Config.CHUNK_SIZE.x
                 : (Config.CHUNK_SIZE.x - 1 - (-position.x - 1) % Config.CHUNK_SIZE.x);
         int z = (position.z >= 0) ? position.z % Config.CHUNK_SIZE.z
@@ -107,7 +115,7 @@ public class World {
         return new Vector3i(x, position.y, z);
     }
 
-    private Vector2i getChunkInWorld(Vector3i position) {
+    public static Vector2i getChunkInWorld(Vector3i position) {
         int x = Math.floorDiv(position.x, Config.CHUNK_SIZE.x);
         int z = Math.floorDiv(position.z, Config.CHUNK_SIZE.z);
         return new Vector2i(x, z);

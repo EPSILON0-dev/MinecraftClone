@@ -24,23 +24,23 @@ import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class Main implements AutoCloseable, Runnable {
-
     private static final String windowTitle = "Hello, World!";
     private static final int windowWidth = 1280;
     private static final int windowHeight = 720;
     private static final float mouseLookSensitivity = 0.0025f;
-    private long windowHandle;
+    private static ImGuiOverlay imGuiOverlay = new ImGuiOverlay();
     private static Shader mainShader;
     private static Shader selectionShader;
     private static Texture texture;
     private static Camera camera;
+    private static World world;
+    private static PosOnlyMesh cubeMesh;
+    private static Player player;
+    private static long windowHandle;
     private double lastFrameTime;
     private boolean firstMouseEvent = true;
     private double lastCursorX;
     private double lastCursorY;
-    private World world;
-    private PosOnlyMesh cubeMesh;
-    private Player player;
 
     public static void main(String... args) {
         try (Main main = new Main()) {
@@ -94,6 +94,15 @@ public class Main implements AutoCloseable, Runnable {
                 camera.setAspectRatio((float) width / height);
             }
         });
+        glfwSetScrollCallback(windowHandle, (windowHandle, xoffset, yoffset) -> {
+            if (player != null) {
+                if (yoffset > 0) {
+                    player.nextBlockType();
+                } else if (yoffset < 0) {
+                    player.previousBlockType();
+                }
+            }
+        });
         try (MemoryStack stack = stackPush()) {
             IntBuffer pWidth = stack.mallocInt(1);
             IntBuffer pHeight = stack.mallocInt(1);
@@ -116,6 +125,7 @@ public class Main implements AutoCloseable, Runnable {
         glDepthFunc(GL_LESS);
         glEnable(GL_CULL_FACE);
         glCullFace(GL_BACK);
+        imGuiOverlay.init(windowHandle);
 
         try {
             String vertSource = Files.readString(Path.of("assets/shaders/main/main.vert"));
@@ -156,42 +166,51 @@ public class Main implements AutoCloseable, Runnable {
             double currentFrameTime = glfwGetTime();
             float deltaTime = (float) (currentFrameTime - lastFrameTime);
             lastFrameTime = currentFrameTime;
+            float fps = deltaTime > 0.0f ? 1.0f / deltaTime : 0.0f;
 
-            updatePlaceBreak();
-            updatePlayerControls();
-            player.update(world, deltaTime);
-            player.setupCamera(camera);
-            player.dumpDebugInfo(world);
+            updatePlayer(deltaTime);
 
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-            // Draw the chunks
-            mainShader.use();
-            mainShader.setUniformMatrix4f("cameraViewProjection", camera.getViewProjectionMatrix());
-            texture.bind(0);
-            mainShader.setUniform1i("baseTex", 0);
-            world.renderChunks(mainShader, "modelMatrix");
-            texture.unbind();
-
-            // Draw the selection box
-            var rayCastResult = RayCast.rayCast(camera, world, 5.0f, false);
-            if (rayCastResult.isPresent()) {
-                Matrix4f modelMatrix = new Matrix4f()
-                        .translate(new Vector3f(rayCastResult.get()).sub(0.001f, 0.001f, 0.001f)).scale(1.002f);
-                selectionShader.use();
-                selectionShader.setUniformMatrix4f("cameraViewProjection", camera.getViewProjectionMatrix());
-                selectionShader.setUniformMatrix4f("modelMatrix", modelMatrix);
-                cubeMesh.bind();
-                cubeMesh.draw();
-                cubeMesh.unbind();
-            }
-
+            renderChunks();
+            drawSelectionBox();
+            imGuiOverlay.render(fps, player, world);
             glfwSwapBuffers(windowHandle);
             glfwPollEvents();
         }
     }
 
+    private void updatePlayer(float deltaTime) {
+        updatePlaceBreak();
+        updatePlayerControls();
+        player.update(world, deltaTime);
+        player.setupCamera(camera);
+    }
+
+    private void renderChunks() {
+        mainShader.use();
+        mainShader.setUniformMatrix4f("cameraViewProjection", camera.getViewProjectionMatrix());
+        texture.bind(0);
+        mainShader.setUniform1i("baseTex", 0);
+        world.renderChunks(mainShader, "modelMatrix");
+        texture.unbind();
+    }
+
+    private void drawSelectionBox() {
+        var rayCastResult = RayCast.rayCast(camera, world, 5.0f, false);
+        if (rayCastResult.isPresent()) {
+            Matrix4f modelMatrix = new Matrix4f()
+                    .translate(new Vector3f(rayCastResult.get()).sub(0.001f, 0.001f, 0.001f)).scale(1.002f);
+            selectionShader.use();
+            selectionShader.setUniformMatrix4f("cameraViewProjection", camera.getViewProjectionMatrix());
+            selectionShader.setUniformMatrix4f("modelMatrix", modelMatrix);
+            cubeMesh.bind();
+            cubeMesh.draw();
+            cubeMesh.unbind();
+        }
+    }
+
     private static boolean prevSpace = false;
+
     private void updatePlayerControls() {
         Vector2f movementInput = new Vector2f();
         if (glfwGetKey(windowHandle, GLFW_KEY_W) == GLFW_PRESS) {
@@ -226,6 +245,7 @@ public class Main implements AutoCloseable, Runnable {
 
     private static boolean prevLeft = false;
     private static boolean prevRight = false;
+    private static boolean prevMiddle = false;
 
     private void updatePlaceBreak() {
         var rayCastResult = RayCast.rayCast(camera, world, 5.0f, false);
@@ -244,12 +264,21 @@ public class Main implements AutoCloseable, Runnable {
             prevLeft = false;
         }
 
+        if (glfwGetMouseButton(windowHandle, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS) {
+            if (!prevMiddle) {
+                prevMiddle = true;
+                player.setSelectedBlockType(world.getBlock(rayCastResult.get()).type);
+            }
+        } else {
+            prevMiddle = false;
+        }
+
         if (glfwGetMouseButton(windowHandle, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
             if (!prevRight) {
                 prevRight = true;
                 if (player.canPlaceBlockAt(previousRayCastResult.get())) {
                     try {
-                        world.setBlock(previousRayCastResult.get(), new Block(BlockType.Dirt));
+                        world.setBlock(previousRayCastResult.get(), new Block(player.selectedBlockType()));
                         world.generateChunkMesh(previousRayCastResult.get());
                     } catch (Exception e) {
                         System.err.println("Failed to place block: " + e.toString());
@@ -260,10 +289,12 @@ public class Main implements AutoCloseable, Runnable {
         } else {
             prevRight = false;
         }
+
     }
 
     @Override
     public void close() {
+        imGuiOverlay.close();
         glfwFreeCallbacks(windowHandle);
         glfwDestroyWindow(windowHandle);
         glfwTerminate();

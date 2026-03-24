@@ -6,6 +6,7 @@ import com.ee.Common.Config;
 import com.ee.Common.Physics;
 import com.ee.Common.Util;
 import com.ee.Common.World;
+import com.ee.Common.BlockType;
 
 import java.lang.Math;
 
@@ -14,6 +15,7 @@ public class Player extends PhysicsObject {
     private float pitch;
     private float currentFov;
     private boolean isSprinting;
+    private BlockType selectedBlockType = BlockType.Dirt;
 
     public Player(Vector3f position, Vector3f direction) {
         super(position, direction, Config.PLAYER_COLLIDER_RADIUS, Config.PLAYER_COLLIDER_HEIGHT, Config.PLAYER_FRICTION,
@@ -46,7 +48,6 @@ public class Player extends PhysicsObject {
     public void jump(World world) {
         if (Physics.isOnGround(world, position, colliderRadius, colliderHeight)) {
             velocity = velocity.add(0, Config.PLAYER_JUMP_IMPULSE, 0);
-            System.out.println("Jumped");
         }
     }
 
@@ -63,13 +64,6 @@ public class Player extends PhysicsObject {
 
     public boolean canPlaceBlockAt(Vector3i blockPos) {
         return Physics.canPlaceBlockAt(position, blockPos, colliderRadius, colliderHeight);
-    }
-
-    public void dumpDebugInfo(World world) {
-        System.out.print("Position: " + position);
-        System.out.print(", Direction: " + direction);
-        System.out.print(", Velocity: " + velocity);
-        System.out.println(isOnGround(world) ? ", On Ground" : ", In Air");
     }
 
     private void addMovementForce(World world, Vector3f movementDirection) {
@@ -90,5 +84,21 @@ public class Player extends PhysicsObject {
                 (float) (Math.cos(yaw) * Math.cos(pitch)),
                 (float) Math.sin(pitch),
                 (float) (Math.sin(yaw) * Math.cos(pitch))).normalize();
+    }
+
+    public BlockType selectedBlockType() {
+        return selectedBlockType;
+    }
+
+    public void setSelectedBlockType(BlockType type) {
+        selectedBlockType = type;
+    }
+
+    public void nextBlockType() {
+        selectedBlockType = BlockType.next(selectedBlockType);
+    }
+
+    public void previousBlockType() {
+        selectedBlockType = BlockType.previous(selectedBlockType);
     }
 }

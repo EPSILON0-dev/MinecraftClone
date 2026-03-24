@@ -54,6 +54,28 @@ public class ChunkTest {
     }
 
     @Test
+    public void generateHashIsStableForEquivalentChunks() {
+        Chunk left = new Chunk(new Vector2i(1, 2));
+        Chunk right = new Chunk(new Vector2i(1, 2));
+
+        left.generateBlocks();
+        right.generateBlocks();
+
+        assertEquals(left.computeHash(), right.computeHash());
+    }
+
+    @Test
+    public void generateHashChangesWhenChunkContentsChange() {
+        Chunk chunk = new Chunk(new Vector2i(0, 0));
+        chunk.generateBlocks();
+
+        int originalHash = chunk.computeHash();
+        chunk.setBlock(new Vector3i(0, 64, 0), new Block(BlockType.Stone));
+
+        assertEquals(false, originalHash == chunk.computeHash());
+    }
+
+    @Test
     public void modelMatrixTranslatesChunkToWorldPosition() {
         ChunkRenderer chunk = new ChunkRenderer(new Vector2i(2, 3));
 
