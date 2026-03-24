@@ -63,7 +63,7 @@ public class PhysicsObject {
         Vector3f feetPosition = new Vector3f(position).add(0.0f, -0.01f, 0.0f);
         Vector3f resolvedFeetPosition = Physics.resolveCapsuleCollision(world, feetPosition, colliderRadius,
                 colliderHeight);
-        return resolvedFeetPosition.y > feetPosition.y + Physics.ON_GROUND_EPSILON;
+        return resolvedFeetPosition.y > feetPosition.y + Config.PHYSICS_EPSILON;
     }
 
     private void applyFriction(float deltaTime) {

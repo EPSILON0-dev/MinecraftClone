@@ -4,9 +4,6 @@ import org.joml.*;
 import java.lang.Math;
 
 public class Physics {
-    public static final float ON_GROUND_EPSILON = 1.0e-3f;
-    public static final float COLLISION_EPSILON = 1.0e-3f;
-
     public static Vector3f resolveCapsuleCollision(World world, Vector3f position, float radius, float height) {
         Vector3f resolvedPosition = new Vector3f(position);
         final int maxIterations = 4;
@@ -179,13 +176,13 @@ public class Physics {
     public static boolean isOnGround(World world, Vector3f position, float radius, float height) {
         Vector3f feetPosition = new Vector3f(position).add(0.0f, -0.01f, 0.0f);
         Vector3f resolvedFeetPosition = resolveCapsuleCollision(world, feetPosition, radius, height);
-        return resolvedFeetPosition.y > feetPosition.y + ON_GROUND_EPSILON;
+        return resolvedFeetPosition.y > feetPosition.y + Config.PHYSICS_EPSILON;
     }
 
     public static boolean canPlaceBlockAt(Vector3f capsulePos, Vector3i blockPos, float radius, float height) {
         float distanceSquared = capsuleBlockDistanceSquared(capsulePos, radius, height,
                 blockPos.x, blockPos.y, blockPos.z);
-        float blockingRadius = Math.max(0.0f, radius - COLLISION_EPSILON);
+        float blockingRadius = Math.max(0.0f, radius - Config.PHYSICS_EPSILON);
         return distanceSquared >= blockingRadius * blockingRadius;
     }
 }

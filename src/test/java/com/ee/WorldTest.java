@@ -29,7 +29,7 @@ public class WorldTest {
     @Test
     public void setBlockMapsExactNegativeChunkBoundariesToCorrectChunk() {
         World world = new World(new Vector2i(2, 1), false);
-        Vector3i worldPosition = new Vector3i(-Chunk.chunkSize.x, 10, 0);
+        Vector3i worldPosition = new Vector3i(-Config.CHUNK_SIZE.x, 10, 0);
 
         world.setBlock(worldPosition, new Block(BlockType.Grass));
 
@@ -41,9 +41,9 @@ public class WorldTest {
         World world = new World(new Vector2i(1, 1), false);
 
         assertThrows(IndexOutOfBoundsException.class,
-                () -> world.getBlock(new Vector3i(Chunk.chunkSize.x, 0, 0)));
+                () -> world.getBlock(new Vector3i(Config.CHUNK_SIZE.x, 0, 0)));
         assertThrows(IndexOutOfBoundsException.class,
-                () -> world.getBlock(new Vector3i(0, Chunk.chunkSize.y, 0)));
+                () -> world.getBlock(new Vector3i(0, Config.CHUNK_SIZE.y, 0)));
     }
 
     @Test
@@ -55,7 +55,7 @@ public class WorldTest {
 
         assertEquals(BlockType.Cobblestone, world.getBlockNoThrow(validPosition).type);
         assertEquals(BlockType.Air, world.getBlockNoThrow(new Vector3i(0, -1, 0)).type);
-        assertEquals(BlockType.Air, world.getBlockNoThrow(new Vector3i(0, Chunk.chunkSize.y, 0)).type);
-        assertEquals(BlockType.Air, world.getBlockNoThrow(new Vector3i(Chunk.chunkSize.x, 0, 0)).type);
+        assertEquals(BlockType.Air, world.getBlockNoThrow(new Vector3i(0, Config.CHUNK_SIZE.y, 0)).type);
+        assertEquals(BlockType.Air, world.getBlockNoThrow(new Vector3i(Config.CHUNK_SIZE.x, 0, 0)).type);
     }
 }

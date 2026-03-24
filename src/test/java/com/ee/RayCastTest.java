@@ -99,14 +99,14 @@ public class RayCastTest {
 
         setField(world, "chunks", chunks);
         setField(world, "minPos", new Vector3i(0, 0, 0));
-        setField(world, "maxPos", new Vector3i(Chunk.chunkSize.x, Chunk.chunkSize.y, Chunk.chunkSize.z));
+        setField(world, "maxPos", new Vector3i(Config.CHUNK_SIZE.x, Config.CHUNK_SIZE.y, Config.CHUNK_SIZE.z));
         return world;
     }
 
     private static void fillChunk(Chunk chunk, BlockType blockType) {
-        for (int x = 0; x < Chunk.chunkSize.x; x++) {
-            for (int y = 0; y < Chunk.chunkSize.y; y++) {
-                for (int z = 0; z < Chunk.chunkSize.z; z++) {
+        for (int x = 0; x < Config.CHUNK_SIZE.x; x++) {
+            for (int y = 0; y < Config.CHUNK_SIZE.y; y++) {
+                for (int z = 0; z < Config.CHUNK_SIZE.z; z++) {
                     chunk.setBlock(new Vector3i(x, y, z), new Block(blockType));
                 }
             }

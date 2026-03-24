@@ -20,10 +20,10 @@ public class World {
 
         // Compute the limits
         var mid = new Vector2i(chunkCount).div(2);
-        minPos = new Vector3i((mid.x - chunkCount.x) * Chunk.chunkSize.x, 0,
-                (mid.y - chunkCount.y) * Chunk.chunkSize.z);
-        maxPos = new Vector3i((chunkCount.x - mid.x) * Chunk.chunkSize.x, Chunk.chunkSize.y,
-                (chunkCount.y - mid.y) * Chunk.chunkSize.z);
+        minPos = new Vector3i((mid.x - chunkCount.x) * Config.CHUNK_SIZE.x, 0,
+                (mid.y - chunkCount.y) * Config.CHUNK_SIZE.z);
+        maxPos = new Vector3i((chunkCount.x - mid.x) * Config.CHUNK_SIZE.x, Config.CHUNK_SIZE.y,
+                (chunkCount.y - mid.y) * Config.CHUNK_SIZE.z);
 
         // Fill the chunks
         chunks = new HashMap<>();
@@ -97,16 +97,16 @@ public class World {
     }
 
     private Vector3i getBlockInChunk(Vector3i position) {
-        int x = (position.x >= 0) ? position.x % Chunk.chunkSize.x
-                : (Chunk.chunkSize.x - 1 - (-position.x - 1) % Chunk.chunkSize.x);
-        int z = (position.z >= 0) ? position.z % Chunk.chunkSize.z
-                : (Chunk.chunkSize.z - 1 - (-position.z - 1) % Chunk.chunkSize.z);
+        int x = (position.x >= 0) ? position.x % Config.CHUNK_SIZE.x
+                : (Config.CHUNK_SIZE.x - 1 - (-position.x - 1) % Config.CHUNK_SIZE.x);
+        int z = (position.z >= 0) ? position.z % Config.CHUNK_SIZE.z
+                : (Config.CHUNK_SIZE.z - 1 - (-position.z - 1) % Config.CHUNK_SIZE.z);
         return new Vector3i(x, position.y, z);
     }
 
     private Vector2i getChunkInWorld(Vector3i position) {
-        int x = Math.floorDiv(position.x, Chunk.chunkSize.x);
-        int z = Math.floorDiv(position.z, Chunk.chunkSize.z);
+        int x = Math.floorDiv(position.x, Config.CHUNK_SIZE.x);
+        int z = Math.floorDiv(position.z, Config.CHUNK_SIZE.z);
         return new Vector2i(x, z);
     }
 }

@@ -1,0 +1,23 @@
+package com.ee;
+
+import org.joml.*;
+import java.lang.Math;
+
+public class Config {
+    public static final Vector3i CHUNK_SIZE = new Vector3i(16, 128, 16);
+    public static final float PHYSICS_EPSILON = 1.0e-3f;
+    public static final float RAYCAST_EPSILON = 1.0e-6f;
+    public static final float CAMERA_MAX_PITCH = (float) Math.toRadians(89.0f);
+    public static final float CAMERA_NORMAL_FOV = 90.0f;
+    public static final float CAMERA_FOV_LERP_SPEED = 10.0f;
+    public static final float PLAYER_COLLIDER_RADIUS = 0.3f;
+    public static final float PLAYER_COLLIDER_HEIGHT = 1.8f;
+    public static final float PLAYER_MOVEMENT_SPEED = 2.0f;
+    public static final float PLAYER_CAMERA_HEIGHT_OFFSET = 1.6f;
+    public static final float PLAYER_FRICTION = 20.0f;
+    public static final float PLAYER_GRAVITY = 9.81f * 2.0f; // For better feel :p
+    public static final float PLAYER_JUMP_IMPULSE = 7.0f;
+    public static final float PLAYER_AIR_CONTROL_MULTIPLIER = 1.0f;
+    public static final float PLAYER_SPRINT_MULTIPLIER = 1.5f;
+    public static final float PLAYER_SPRINT_FOV_MULTIPLIER = 1.2f;
+}

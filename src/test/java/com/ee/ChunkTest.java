@@ -28,11 +28,11 @@ public class ChunkTest {
         assertThrows(IndexOutOfBoundsException.class,
                 () -> chunk.setBlock(new Vector3i(-1, 0, 0), new Block(BlockType.Dirt)));
         assertThrows(IndexOutOfBoundsException.class,
-                () -> chunk.setBlock(new Vector3i(Chunk.chunkSize.x, 0, 0), new Block(BlockType.Dirt)));
+                () -> chunk.setBlock(new Vector3i(Config.CHUNK_SIZE.x, 0, 0), new Block(BlockType.Dirt)));
         assertThrows(IndexOutOfBoundsException.class,
-                () -> chunk.setBlock(new Vector3i(0, Chunk.chunkSize.y, 0), new Block(BlockType.Dirt)));
+                () -> chunk.setBlock(new Vector3i(0, Config.CHUNK_SIZE.y, 0), new Block(BlockType.Dirt)));
         assertThrows(IndexOutOfBoundsException.class,
-                () -> chunk.setBlock(new Vector3i(0, 0, Chunk.chunkSize.z), new Block(BlockType.Dirt)));
+                () -> chunk.setBlock(new Vector3i(0, 0, Config.CHUNK_SIZE.z), new Block(BlockType.Dirt)));
     }
 
     @Test

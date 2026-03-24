@@ -6,8 +6,6 @@ import java.lang.Math;
 import org.joml.*;
 
 public class RayCast {
-    private static final float EPSILON = 1.0e-6f;
-
     public static Optional<Vector3i> rayCast(Camera camera, World world, float maxDistance, boolean previous) {
         if (maxDistance <= 0.0f) {
             return Optional.empty();
@@ -15,7 +13,7 @@ public class RayCast {
 
         Vector3f origin = new Vector3f(camera.position());
         Vector3f direction = new Vector3f(camera.direction());
-        if (direction.lengthSquared() < EPSILON) {
+        if (direction.lengthSquared() < Config.RAYCAST_EPSILON) {
             return Optional.empty();
         }
         direction.normalize();
@@ -86,7 +84,7 @@ public class RayCast {
     }
 
     private static float axisStepDistance(float directionComponent) {
-        if (Math.abs(directionComponent) < EPSILON) {
+        if (Math.abs(directionComponent) < Config.RAYCAST_EPSILON) {
             return Float.POSITIVE_INFINITY;
         }
 

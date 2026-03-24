@@ -90,8 +90,8 @@ public class PhysicsObjectTest {
 
     private static World createFloorWorld() {
         World world = createEmptyWorld();
-        for (int x = 0; x < Chunk.chunkSize.x; x++) {
-            for (int z = 0; z < Chunk.chunkSize.z; z++) {
+        for (int x = 0; x < Config.CHUNK_SIZE.x; x++) {
+            for (int z = 0; z < Config.CHUNK_SIZE.z; z++) {
                 world.setBlock(new Vector3i(x, 0, z), new Block(BlockType.Cobblestone));
             }
         }
@@ -99,9 +99,9 @@ public class PhysicsObjectTest {
     }
 
     private static void fillWorld(World world, BlockType blockType) {
-        for (int x = 0; x < Chunk.chunkSize.x; x++) {
-            for (int y = 0; y < Chunk.chunkSize.y; y++) {
-                for (int z = 0; z < Chunk.chunkSize.z; z++) {
+        for (int x = 0; x < Config.CHUNK_SIZE.x; x++) {
+            for (int y = 0; y < Config.CHUNK_SIZE.y; y++) {
+                for (int z = 0; z < Config.CHUNK_SIZE.z; z++) {
                     world.setBlock(new Vector3i(x, y, z), new Block(blockType));
                 }
             }
