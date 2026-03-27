@@ -1,10 +1,13 @@
 package com.ee.Common;
 
 import org.joml.*;
+
+import com.ee.Client.ClientWorld;
+
 import java.lang.Math;
 
 public class Physics {
-    public static Vector3f resolveCapsuleCollision(World world, Vector3f position, float radius, float height) {
+    public static Vector3f resolveCapsuleCollision(ClientWorld world, Vector3f position, float radius, float height) {
         Vector3f resolvedPosition = new Vector3f(position);
         final int maxIterations = 4;
 
@@ -173,7 +176,7 @@ public class Physics {
         return deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ;
     }
 
-    public static boolean isOnGround(World world, Vector3f position, float radius, float height) {
+    public static boolean isOnGround(ClientWorld world, Vector3f position, float radius, float height) {
         Vector3f feetPosition = new Vector3f(position).add(0.0f, -0.01f, 0.0f);
         Vector3f resolvedFeetPosition = resolveCapsuleCollision(world, feetPosition, radius, height);
         return resolvedFeetPosition.y > feetPosition.y + Config.PHYSICS_EPSILON;

@@ -4,7 +4,6 @@ import org.joml.*;
 
 import com.ee.Common.Config;
 import com.ee.Common.Physics;
-import com.ee.Common.World;
 
 public class PhysicsObject {
     protected Vector3f position;
@@ -50,9 +49,10 @@ public class PhysicsObject {
         this.velocity = velocity;
     }
 
-    public void update(World world, float deltaTime) {
+    public void update(ClientWorld world, float deltaTime) {
         applyFriction(deltaTime);
         applyGravity(deltaTime);
+        checkOutOfWorld();
         cancelGravityOnGround(world);
         Vector3f newPosition = new Vector3f(position).add(new Vector3f(velocity).mul(deltaTime));
         Vector3f resolvedPosition = Physics.resolveCapsuleCollision(world, newPosition, colliderRadius, colliderHeight);
@@ -75,7 +75,7 @@ public class PhysicsObject {
         return dest;
     }
 
-    protected boolean isOnGround(World world) {
+    protected boolean isOnGround(ClientWorld world) {
         Vector3f feetPosition = new Vector3f(position).add(0.0f, -0.01f, 0.0f);
         Vector3f resolvedFeetPosition = Physics.resolveCapsuleCollision(world, feetPosition, colliderRadius,
                 colliderHeight);
@@ -92,11 +92,17 @@ public class PhysicsObject {
         addForce(new Vector3f(0, -gravityStrength * deltaTime, 0));
     }
 
-    private void cancelGravityOnGround(World world) {
+    private void cancelGravityOnGround(ClientWorld world) {
         if (isOnGround(world)) {
             if (velocity.y < 0.0f) {
                 velocity.y = 0.0f;
             }
+        }
+    }
+
+    private void checkOutOfWorld() {
+        if (position.y < Config.WORLD_OUT_OF_BOUNDS_Y) {
+            position.set(0, 130, 0);
         }
     }
 }

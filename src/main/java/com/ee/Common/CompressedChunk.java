@@ -1,8 +1,9 @@
 package com.ee.Common;
 
+import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
+import java.util.zip.Inflater;
 import org.joml.Vector2i;
-import java.util.Arrays;
 
 public class CompressedChunk {
     private byte[] compressedData;
@@ -24,12 +25,30 @@ public class CompressedChunk {
 
         byte[] buffer = new byte[bytes.length];
         int len = deflater.deflate(buffer);
-        compressedData = Arrays.copyOf(buffer, len);
-        deflater.deflate(compressedData);
+        compressedData = new byte[len];
+        System.arraycopy(buffer, 0, compressedData, 0, len);
         deflater.end();
 
         worldPosition = chunk.worldPosition;
         hash = chunk.computeHash();
+    }
+
+    public CompressedChunk(Vector2i worldPosition, int hash, byte[] compressedData) {
+        this.worldPosition = worldPosition;
+        this.hash = hash;
+        this.compressedData = compressedData;
+    }
+
+    public Vector2i worldPosition() {
+        return worldPosition;
+    }
+
+    public int hash() {
+        return hash;
+    }
+
+    public byte[] compressedData() {
+        return compressedData;
     }
 
     public int getCompressedSize() {
@@ -38,11 +57,11 @@ public class CompressedChunk {
 
     public Chunk decompress() throws IllegalStateException {
         byte[] decompressedData = new byte[Config.CHUNK_BLOCK_COUNT * Config.BLOCK_DATA_SIZE];
-        java.util.zip.Inflater inflater = new java.util.zip.Inflater();
+        Inflater inflater = new Inflater(true);
         inflater.setInput(compressedData);
         try {
             inflater.inflate(decompressedData);
-        } catch (java.util.zip.DataFormatException e) {
+        } catch (DataFormatException e) {
             e.printStackTrace();
             throw new IllegalStateException("Failed to decompress chunk data", e);
         } finally {

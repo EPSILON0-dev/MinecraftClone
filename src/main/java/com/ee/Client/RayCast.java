@@ -6,11 +6,11 @@ import java.lang.Math;
 import org.joml.*;
 
 import com.ee.Common.BlockType;
+import com.ee.Common.Block;
 import com.ee.Common.Config;
-import com.ee.Common.World;
 
 public class RayCast {
-    public static Optional<Vector3i> rayCast(Camera camera, World world, float maxDistance, boolean previous) {
+    public static Optional<Vector3i> rayCast(Camera camera, ClientWorld world, float maxDistance, boolean previous) {
         if (maxDistance <= 0.0f) {
             return Optional.empty();
         }
@@ -28,7 +28,8 @@ public class RayCast {
                 (int) Math.floor(origin.z));
         Vector3i previousBlock = new Vector3i(currentBlock);
 
-        if (world.getBlockNoThrow(currentBlock).type != BlockType.Air) {
+        Block block = world.getBlockNoThrow(currentBlock);
+        if (block.type != BlockType.Air) {
             return Optional.of(new Vector3i(currentBlock));
         }
 

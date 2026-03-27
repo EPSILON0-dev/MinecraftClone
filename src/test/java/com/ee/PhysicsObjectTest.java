@@ -1,15 +1,14 @@
 package com.ee;
 
-import org.joml.Vector2i;
-import org.joml.Vector3f;
-import org.joml.Vector3i;
+import org.joml.*;
 import org.junit.jupiter.api.Test;
 
 import com.ee.Client.PhysicsObject;
+import com.ee.Client.ClientWorld;
 import com.ee.Common.Block;
 import com.ee.Common.BlockType;
 import com.ee.Common.Config;
-import com.ee.Common.World;
+import com.ee.Common.Chunk;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -35,7 +34,7 @@ public class PhysicsObjectTest {
 
     @Test
     public void updateAppliesFrictionBeforeMovementAndGravityWhileAirborne() {
-        World world = createEmptyWorld();
+        ClientWorld world = createEmptyWorld();
         PhysicsObject object = new PhysicsObject(
                 new Vector3f(2.0f, 5.0f, 2.0f),
                 new Vector3f(1.0f, 0.0f, 0.0f),
@@ -56,7 +55,7 @@ public class PhysicsObjectTest {
 
     @Test
     public void updateCancelsGravityWhenObjectStartsOnGround() {
-        World world = createFloorWorld();
+        ClientWorld world = createFloorWorld();
         PhysicsObject object = new PhysicsObject(
                 new Vector3f(0.5f, 1.0f, 0.5f),
                 new Vector3f(1.0f, 0.0f, 0.0f),
@@ -88,14 +87,15 @@ public class PhysicsObjectTest {
         assertEquals(1.0f, right.z, 0.0001f);
     }
 
-    private static World createEmptyWorld() {
-        World world = new World(new Vector2i(1, 1), false);
+    private static ClientWorld createEmptyWorld() {
+        ClientWorld world = new ClientWorld();
+        world.addChunk(new Vector2i(0, 0), new Chunk(new Vector2i(0, 0)));
         fillWorld(world, BlockType.Air);
         return world;
     }
 
-    private static World createFloorWorld() {
-        World world = createEmptyWorld();
+    private static ClientWorld createFloorWorld() {
+        ClientWorld world = createEmptyWorld();
         for (int x = 0; x < Config.CHUNK_SIZE.x; x++) {
             for (int z = 0; z < Config.CHUNK_SIZE.z; z++) {
                 world.setBlock(new Vector3i(x, 0, z), new Block(BlockType.Cobblestone));
@@ -104,7 +104,7 @@ public class PhysicsObjectTest {
         return world;
     }
 
-    private static void fillWorld(World world, BlockType blockType) {
+    private static void fillWorld(ClientWorld world, BlockType blockType) {
         for (int x = 0; x < Config.CHUNK_SIZE.x; x++) {
             for (int y = 0; y < Config.CHUNK_SIZE.y; y++) {
                 for (int z = 0; z < Config.CHUNK_SIZE.z; z++) {

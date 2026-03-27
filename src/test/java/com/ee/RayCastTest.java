@@ -7,11 +7,11 @@ import org.junit.jupiter.api.Test;
 
 import com.ee.Client.Camera;
 import com.ee.Client.RayCast;
+import com.ee.Client.ClientWorld;
 import com.ee.Common.Block;
 import com.ee.Common.BlockType;
 import com.ee.Common.Chunk;
 import com.ee.Common.Config;
-import com.ee.Common.World;
 
 import sun.misc.Unsafe;
 
@@ -27,7 +27,7 @@ public class RayCastTest {
 
     @Test
     public void rayCastReturnsFirstSolidBlockAlongCameraDirection() throws Exception {
-        World world = createWorld(new Vector3i(0, 64, 0), BlockType.Grass);
+        ClientWorld world = createWorld(new Vector3i(0, 64, 0), BlockType.Grass);
         Camera camera = new Camera(new Vector3f(0.5f, 65.5f, 0.5f), new Vector3f(0.0f, -1.0f, 0.0f),
                 90.0f, 1.0f);
 
@@ -39,7 +39,7 @@ public class RayCastTest {
 
     @Test
     public void rayCastReturnsPreviousAirBlockBeforeFirstSolidBlockWhenRequested() throws Exception {
-        World world = createWorld(new Vector3i(0, 64, 0), BlockType.Grass);
+        ClientWorld world = createWorld(new Vector3i(0, 64, 0), BlockType.Grass);
         Camera camera = new Camera(new Vector3f(0.5f, 65.5f, 0.5f), new Vector3f(0.0f, -1.0f, 0.0f),
                 90.0f, 1.0f);
 
@@ -51,7 +51,7 @@ public class RayCastTest {
 
     @Test
     public void rayCastReturnsCurrentBlockWhenCameraStartsInsideSolidBlock() throws Exception {
-        World world = createWorld(new Vector3i(2, 10, 3), BlockType.Cobblestone);
+        ClientWorld world = createWorld(new Vector3i(2, 10, 3), BlockType.Cobblestone);
         Camera camera = new Camera(new Vector3f(2.5f, 10.5f, 3.5f), new Vector3f(1.0f, 0.0f, 0.0f),
                 90.0f, 1.0f);
 
@@ -63,7 +63,7 @@ public class RayCastTest {
 
     @Test
     public void rayCastReturnsCurrentBlockWhenPreviousRequestedAndCameraStartsInsideSolidBlock() throws Exception {
-        World world = createWorld(new Vector3i(2, 10, 3), BlockType.Cobblestone);
+        ClientWorld world = createWorld(new Vector3i(2, 10, 3), BlockType.Cobblestone);
         Camera camera = new Camera(new Vector3f(2.5f, 10.5f, 3.5f), new Vector3f(1.0f, 0.0f, 0.0f),
                 90.0f, 1.0f);
 
@@ -75,7 +75,7 @@ public class RayCastTest {
 
     @Test
     public void rayCastReturnsEmptyWhenNoSolidBlockIsHit() throws Exception {
-        World world = createWorld(null, null);
+        ClientWorld world = createWorld(null, null);
         Camera camera = new Camera(new Vector3f(0.5f, 65.5f, 0.5f), new Vector3f(0.0f, 1.0f, 0.0f),
                 90.0f, 1.0f);
 
@@ -86,7 +86,7 @@ public class RayCastTest {
 
     @Test
     public void rayCastReturnsEmptyWhenPreviousRequestedAndNoSolidBlockIsHit() throws Exception {
-        World world = createWorld(null, null);
+        ClientWorld world = createWorld(null, null);
         Camera camera = new Camera(new Vector3f(0.5f, 65.5f, 0.5f), new Vector3f(0.0f, 1.0f, 0.0f),
                 90.0f, 1.0f);
 
@@ -95,20 +95,14 @@ public class RayCastTest {
         assertFalse(hit.isPresent());
     }
 
-    private static World createWorld(Vector3i solidBlockPosition, BlockType solidBlockType) throws Exception {
-        World world = (World) getUnsafe().allocateInstance(World.class);
+    private static ClientWorld createWorld(Vector3i solidBlockPosition, BlockType solidBlockType) throws Exception {
+        ClientWorld world = new ClientWorld();
         Chunk chunk = new Chunk(new Vector2i(0, 0));
+        world.addChunk(new Vector2i(0, 0), chunk);
         fillChunk(chunk, BlockType.Air);
         if (solidBlockPosition != null && solidBlockType != null) {
             chunk.setBlock(solidBlockPosition, new Block(solidBlockType));
         }
-
-        HashMap<Vector2i, Chunk> chunks = new HashMap<>();
-        chunks.put(new Vector2i(0, 0), chunk);
-
-        setField(world, "chunks", chunks);
-        setField(world, "minPos", new Vector3i(0, 0, 0));
-        setField(world, "maxPos", new Vector3i(Config.CHUNK_SIZE.x, Config.CHUNK_SIZE.y, Config.CHUNK_SIZE.z));
         return world;
     }
 
@@ -129,7 +123,7 @@ public class RayCastTest {
     }
 
     private static void setField(Object target, String fieldName, Object value) throws Exception {
-        Field field = World.class.getDeclaredField(fieldName);
+        Field field = ClientWorld.class.getDeclaredField(fieldName);
         field.setAccessible(true);
         field.set(target, value);
     }

@@ -7,7 +7,6 @@ import org.lwjgl.system.MemoryStack;
 
 import com.ee.Common.Block;
 import com.ee.Common.BlockType;
-import com.ee.Common.World;
 
 import org.joml.*;
 
@@ -33,11 +32,11 @@ public class Main implements AutoCloseable, Runnable {
     private static Shader selectionShader;
     private static Texture texture;
     private static Camera camera;
-    private static World world;
+    private static ClientWorld world;
     private static PosOnlyMesh cubeMesh;
     private static Player player;
+    private static NetworkManager networkManager;
     private static long windowHandle;
-    private double lastFrameTime;
     private boolean firstMouseEvent = true;
     private double lastCursorX;
     private double lastCursorY;
@@ -156,9 +155,12 @@ public class Main implements AutoCloseable, Runnable {
         player = new Player(new Vector3f(0.0f, 67.0f, 0.0f), new Vector3f(0.0f, 0.0f, -1.0f));
         System.out.println("Fly camera controls: WASD move, Space up, Left Shift down, mouse look.");
 
-        world = new World(new Vector2i(8));
+        world = new ClientWorld();
+        networkManager = new NetworkManager(world);
         cubeMesh = Cube.cubeMesh();
     }
+
+    private double lastFrameTime;
 
     public void loop() {
         lastFrameTime = glfwGetTime();
@@ -167,6 +169,11 @@ public class Main implements AutoCloseable, Runnable {
             float deltaTime = (float) (currentFrameTime - lastFrameTime);
             lastFrameTime = currentFrameTime;
             float fps = deltaTime > 0.0f ? 1.0f / deltaTime : 0.0f;
+
+            var nearestMissing = world.getNearestMissingChunk(player);
+            if (nearestMissing.isPresent()) {
+                networkManager.requestChunk(nearestMissing.get().x, nearestMissing.get().y);
+            }
 
             updatePlayer(deltaTime);
 
@@ -187,6 +194,7 @@ public class Main implements AutoCloseable, Runnable {
     }
 
     private void renderChunks() {
+        world.generateQueuedMeshes();
         mainShader.use();
         mainShader.setUniformMatrix4f("cameraViewProjection", camera.getViewProjectionMatrix());
         texture.bind(0);
@@ -209,7 +217,7 @@ public class Main implements AutoCloseable, Runnable {
         }
     }
 
-    private static boolean prevSpace = false;
+    private boolean prevSpace = false;
 
     private void updatePlayerControls() {
         Vector2f movementInput = new Vector2f();
@@ -243,9 +251,9 @@ public class Main implements AutoCloseable, Runnable {
         }
     }
 
-    private static boolean prevLeft = false;
-    private static boolean prevRight = false;
-    private static boolean prevMiddle = false;
+    private boolean prevLeft = false;
+    private boolean prevRight = false;
+    private boolean prevMiddle = false;
 
     private void updatePlaceBreak() {
         var rayCastResult = RayCast.rayCast(camera, world, 5.0f, false);
@@ -258,7 +266,7 @@ public class Main implements AutoCloseable, Runnable {
             if (!prevLeft) {
                 prevLeft = true;
                 world.setBlock(rayCastResult.get(), new Block(BlockType.Air));
-                world.generateChunkMesh(rayCastResult.get());
+                world.requestMeshGeneration(ClientWorld.getChunkInWorld(rayCastResult.get()));
             }
         } else {
             prevLeft = false;
@@ -279,7 +287,7 @@ public class Main implements AutoCloseable, Runnable {
                 if (player.canPlaceBlockAt(previousRayCastResult.get())) {
                     try {
                         world.setBlock(previousRayCastResult.get(), new Block(player.selectedBlockType()));
-                        world.generateChunkMesh(previousRayCastResult.get());
+                        world.requestMeshGeneration(ClientWorld.getChunkInWorld(previousRayCastResult.get()));
                     } catch (Exception e) {
                         System.err.println("Failed to place block: " + e.toString());
                         e.printStackTrace(System.err);

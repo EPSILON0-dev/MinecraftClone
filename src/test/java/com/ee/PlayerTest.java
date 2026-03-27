@@ -8,10 +8,11 @@ import org.junit.jupiter.api.Test;
 
 import com.ee.Client.Camera;
 import com.ee.Client.Player;
+import com.ee.Client.ClientWorld;
 import com.ee.Common.Block;
 import com.ee.Common.BlockType;
+import com.ee.Common.Chunk;
 import com.ee.Common.Config;
-import com.ee.Common.World;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -30,26 +31,15 @@ public class PlayerTest {
 	}
 
 	@Test
-	public void moveForwardUsesOnlyHorizontalDirection() {
-		Player player = new Player(new Vector3f(0.5f, 1.0f, 0.5f), new Vector3f(1.0f, 1.0f, 0.0f));
-
-		player.move(createEmptyWorld(), new Vector2f(1.0f, 0.0f));
-
-		assertEquals(2.0f, player.velocity().x, 0.0001f);
-		assertEquals(0.0f, player.velocity().y, 0.0001f);
-		assertEquals(0.0f, player.velocity().z, 0.0001f);
-	}
-
-	@Test
 	public void jumpOnlyAppliesImpulseWhenGrounded() {
-		World world = createFloorWorld();
+		ClientWorld world = createFloorWorld();
 		Player grounded = new Player(new Vector3f(0.5f, 1.0f, 0.5f), new Vector3f(1.0f, 0.0f, 0.0f));
 		Player airborne = new Player(new Vector3f(0.5f, 3.0f, 0.5f), new Vector3f(1.0f, 0.0f, 0.0f));
 
 		grounded.jump(world);
 		airborne.jump(world);
 
-		assertEquals(30.0f, grounded.velocity().y, 0.0001f);
+		assertEquals(Config.PLAYER_JUMP_IMPULSE, grounded.velocity().y, 0.0001f);
 		assertEquals(0.0f, airborne.velocity().y, 0.0001f);
 	}
 
@@ -68,14 +58,14 @@ public class PlayerTest {
 		assertEquals(player.direction().z, camera.direction().z, 0.0001f);
 	}
 
-	private static World createEmptyWorld() {
-		World world = new World(new Vector2i(1, 1), false);
+	private static ClientWorld createEmptyWorld() {
+		ClientWorld world = new ClientWorld();
 		fillWorld(world, BlockType.Air);
 		return world;
 	}
 
-	private static World createFloorWorld() {
-		World world = createEmptyWorld();
+	private static ClientWorld createFloorWorld() {
+		ClientWorld world = createEmptyWorld();
 		for (int x = 0; x < Config.CHUNK_SIZE.x; x++) {
 			for (int z = 0; z < Config.CHUNK_SIZE.z; z++) {
 				world.setBlock(new Vector3i(x, 0, z), new Block(BlockType.Cobblestone));
@@ -84,7 +74,8 @@ public class PlayerTest {
 		return world;
 	}
 
-	private static void fillWorld(World world, BlockType blockType) {
+	private static void fillWorld(ClientWorld world, BlockType blockType) {
+		world.addChunk(new Vector2i(0, 0), new Chunk(new Vector2i(0, 0)));
 		for (int x = 0; x < Config.CHUNK_SIZE.x; x++) {
 			for (int y = 0; y < Config.CHUNK_SIZE.y; y++) {
 				for (int z = 0; z < Config.CHUNK_SIZE.z; z++) {

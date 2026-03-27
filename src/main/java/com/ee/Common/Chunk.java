@@ -41,6 +41,10 @@ public class Chunk {
         return blocks[positionToIndex(position)];
     }
 
+    public Vector2i worldPosition() {
+        return worldPosition;
+    }
+
     public Block[] getBlockArrayClone() {
         return blocks.clone();
     }

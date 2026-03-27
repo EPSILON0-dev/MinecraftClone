@@ -77,9 +77,10 @@ public class ChunkTest {
 
     @Test
     public void modelMatrixTranslatesChunkToWorldPosition() {
-        ChunkRenderer chunk = new ChunkRenderer(new Vector2i(2, 3));
+        Chunk chunk = new Chunk(new Vector2i(1, 2));
+        ChunkRenderer chunkRenderer = new ChunkRenderer(chunk);
 
-        Vector3f translation = chunk.modelMatrix().getTranslation(new Vector3f());
+        Vector3f translation = chunkRenderer.modelMatrix().getTranslation(new Vector3f());
 
         assertEquals(32.0f, translation.x, 0.0001f);
         assertEquals(0.0f, translation.y, 0.0001f);

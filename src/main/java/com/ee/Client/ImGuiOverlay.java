@@ -22,7 +22,7 @@ public class ImGuiOverlay implements AutoCloseable {
         imGuiGl3.init("#version 330 core");
     }
 
-    public void render(float fps, Player player, World world) {
+    public void render(float fps, Player player, ClientWorld world) {
         imGuiGl3.newFrame();
         imGuiGlfw.newFrame();
         ImGui.newFrame();
@@ -50,11 +50,14 @@ public class ImGuiOverlay implements AutoCloseable {
     private static int prevChunkHash = 0;
     private static int chunkCompressedSize = 0;
 
-    private void debugWindow(float fps, Player player, World world) {
+    private void debugWindow(float fps, Player player, ClientWorld world) {
         ImGui.setNextWindowPos(16.0f, 16.0f, ImGuiCond.Once);
         ImGui.setNextWindowSize(260.0f, 300.0f, ImGuiCond.Once);
-        ImGui.begin("\"F3\" Menu", ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse);
+        ImGui.begin("Debug Menu", ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse);
         ImGui.text(String.format("FPS: %.1f", fps));
+
+        ImGui.separator();
+
         var position = player.position();
         var direction = player.direction();
         var velocity = player.velocity();
@@ -65,7 +68,7 @@ public class ImGuiOverlay implements AutoCloseable {
         
         ImGui.separator();
         
-        var chunkPos = World.getChunkInWorld(Util.vec3fToVec3i(player.position()));
+        var chunkPos = ClientWorld.getChunkInWorld(Util.vec3fToVec3i(player.position()));
         var chunk = world.getChunk(chunkPos);
         int hash = chunk != null ? chunk.computeHash() : 0;
         ImGui.text(String.format("Chunk: %d, %d", chunkPos.x, chunkPos.y));

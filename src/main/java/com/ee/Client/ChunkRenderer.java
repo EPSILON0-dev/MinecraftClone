@@ -11,16 +11,25 @@ import java.util.ArrayList;
 
 public class ChunkRenderer extends Chunk {
     private ChunkMesh mesh;
+    ArrayList<ChunkMeshVertex> vertices;
+    ArrayList<Integer> indices;
 
-    public ChunkRenderer(Vector2i worldPosition) {
-        super(worldPosition);
+    public ChunkRenderer(Chunk chunk) {
+        super(chunk.worldPosition(), chunk.getBlockArrayClone());
+        this.mesh = null;
+        this.vertices = new ArrayList<>();
+        this.indices = new ArrayList<>();
+    }
+
+    public void generateMeshData() {
+        this.vertices = new ArrayList<>();
+        this.indices = new ArrayList<>();
+        generateBlockMeshes(vertices, indices);
     }
 
     public void generateMesh() {
-        ArrayList<ChunkMeshVertex> vertices = new ArrayList<>();
-        ArrayList<Integer> indices = new ArrayList<>();
-        GenerateBlockMeshes(vertices, indices);
         mesh = new ChunkMesh(vertices, indices);
+        System.out.println("[RENDER] Gen GL mesh, pos: " + worldPosition);
     }
 
     public ChunkMesh mesh() {
@@ -32,7 +41,11 @@ public class ChunkRenderer extends Chunk {
                 worldPosition.y * Config.CHUNK_SIZE.z);
     }
 
-    private void GenerateBlockMeshes(ArrayList<ChunkMeshVertex> vertices, ArrayList<Integer> indices) {
+    public boolean isReadyToRender() {
+        return mesh != null;
+    }
+
+    private void generateBlockMeshes(ArrayList<ChunkMeshVertex> vertices, ArrayList<Integer> indices) {
         for (int x = 0; x < Config.CHUNK_SIZE.x; x++) {
             for (int y = 0; y < Config.CHUNK_SIZE.y; y++) {
                 for (int z = 0; z < Config.CHUNK_SIZE.z; z++) {
@@ -40,8 +53,9 @@ public class ChunkRenderer extends Chunk {
                 }
             }
         }
-        System.out.println("[CHUNK RENDER] Gen mesh, pos: " + worldPosition + ", vert: " + vertices.size() + ", tri: "
-                + indices.size() / 3);
+        System.out.println(
+                "[RENDER] Gen mesh data, pos: " + worldPosition + ", vert: " + vertices.size() + ", tri: "
+                        + indices.size() / 3);
     }
 
     private void GenerateBlockMesh(Vector3i position, ArrayList<ChunkMeshVertex> vertices, ArrayList<Integer> indices) {

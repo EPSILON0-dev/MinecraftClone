@@ -5,7 +5,6 @@ import org.joml.*;
 import com.ee.Common.Config;
 import com.ee.Common.Physics;
 import com.ee.Common.Util;
-import com.ee.Common.World;
 import com.ee.Common.BlockType;
 
 import java.lang.Math;
@@ -41,18 +40,18 @@ public class Player extends PhysicsObject {
         isSprinting = sprinting;
     }
 
-    public void move(World world, Vector2f vector) {
+    public void move(ClientWorld world, Vector2f vector) {
         addMovementForce(world, getRightVector().mul(vector.x).add(getForwardVector().mul(vector.y)));
     }
 
-    public void jump(World world) {
+    public void jump(ClientWorld world) {
         if (Physics.isOnGround(world, position, colliderRadius, colliderHeight)) {
             velocity = velocity.add(0, Config.PLAYER_JUMP_IMPULSE, 0);
         }
     }
 
     @Override
-    public void update(World world, float deltaTime) {
+    public void update(ClientWorld world, float deltaTime) {
         super.update(world, deltaTime);
 
         // Smoothly interpolate FOV based on sprinting state
@@ -66,7 +65,7 @@ public class Player extends PhysicsObject {
         return Physics.canPlaceBlockAt(position, blockPos, colliderRadius, colliderHeight);
     }
 
-    private void addMovementForce(World world, Vector3f movementDirection) {
+    private void addMovementForce(ClientWorld world, Vector3f movementDirection) {
         movementDirection.y = 0.0f;
         boolean onGround = Physics.isOnGround(world, position, colliderRadius, colliderHeight);
         float speed = Config.PLAYER_MOVEMENT_SPEED * (onGround ? 1.0f : Config.PLAYER_AIR_CONTROL_MULTIPLIER)

@@ -22,4 +22,8 @@ public class Config {
     public static final float PLAYER_AIR_CONTROL_MULTIPLIER = 1.0f;
     public static final float PLAYER_SPRINT_MULTIPLIER = 1.5f;
     public static final float PLAYER_SPRINT_FOV_MULTIPLIER = 1.2f;
+    public static final int WORLD_MAX_SIZE_CHUNKS = 8192; // On each axis
+    public static final int WORLD_CHUNK_DISTANCE = 3;
+    public static final float WORLD_OUT_OF_BOUNDS_Y = -100.0f;
+    public static final int RENDERER_MAX_MESHES_PER_FRAME = 4;
 }
