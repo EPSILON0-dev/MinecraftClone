@@ -7,6 +7,7 @@ import java.net.SocketAddress;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 import org.joml.Vector2i;
 import com.ee.Common.Network.*;
 import com.ee.Common.Block;
@@ -18,10 +19,14 @@ public class Listener implements Runnable, AutoCloseable {
     private DatagramSocket socket;
     private ServerWorld world;
     private HashMap<SocketAddress, Long> activeClients;
+    private AtomicLong receivedPacketCount;
+    private AtomicLong sentPacketCount;
 
     public Listener(int port, ServerWorld world) {
         this.world = world;
         this.activeClients = new HashMap<>();
+        this.receivedPacketCount = new AtomicLong();
+        this.sentPacketCount = new AtomicLong();
         try {
             this.socket = new DatagramSocket(port);
         } catch (Exception e) {
@@ -56,6 +61,7 @@ public class Listener implements Runnable, AutoCloseable {
 
     private void handlePacket(DatagramPacket packet) {
         registerClient(packet);
+        receivedPacketCount.incrementAndGet();
         byte[] data = packet.getData();
         if (data[0] == (byte) PacketType.CHUNK_REQUEST.ordinal()) {
             handleChunkRequest(packet);
@@ -94,6 +100,7 @@ public class Listener implements Runnable, AutoCloseable {
         DatagramPacket udpPacket = new DatagramPacket(data, data.length, packet.getAddress(), packet.getPort());
         try {
             socket.send(udpPacket);
+            sentPacketCount.incrementAndGet();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -123,9 +130,18 @@ public class Listener implements Runnable, AutoCloseable {
             udpPacket.setSocketAddress(clientAddress);
             try {
                 socket.send(udpPacket);
+                sentPacketCount.incrementAndGet();
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    public long receivedPacketCount() {
+        return receivedPacketCount.get();
+    }
+
+    public long sentPacketCount() {
+        return sentPacketCount.get();
     }
 }

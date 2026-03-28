@@ -6,6 +6,7 @@ import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.system.MemoryStack;
 
 import com.ee.Common.BlockType;
+import com.ee.Common.CliArgs;
 
 import org.joml.*;
 
@@ -39,10 +40,22 @@ public class Main implements AutoCloseable, Runnable {
     private boolean firstMouseEvent = true;
     private double lastCursorX;
     private double lastCursorY;
+    private final CliArgs.ClientOptions options;
+
+    public Main() {
+        this(new String[0]);
+    }
+
+    public Main(String... args) {
+        this.options = CliArgs.parseClient(args);
+    }
 
     public static void main(String... args) {
-        try (Main main = new Main()) {
+        try (Main main = new Main(args)) {
             main.run();
+        } catch (IllegalArgumentException e) {
+            System.err.println(e.getMessage());
+            System.err.println("Client usage: --server-ip=<host> --server-port=<port> --render-distance=<chunks>");
         }
     }
 
@@ -154,8 +167,8 @@ public class Main implements AutoCloseable, Runnable {
         player = new Player(new Vector3f(0.0f, 67.0f, 0.0f), new Vector3f(0.0f, 0.0f, -1.0f));
         System.out.println("Fly camera controls: WASD move, Space up, Left Shift down, mouse look.");
 
-        world = new ClientWorld();
-        networkManager = new NetworkManager(world);
+        world = new ClientWorld(options.renderDistance());
+        networkManager = new NetworkManager(world, options.serverHost(), options.serverPort());
         cubeMesh = Cube.cubeMesh();
     }
 
@@ -174,12 +187,14 @@ public class Main implements AutoCloseable, Runnable {
                 networkManager.requestChunk(nearestMissing.get().x, nearestMissing.get().y);
             }
 
+            world.unloadDistantChunks(player);
+
             updatePlayer(deltaTime);
 
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             renderChunks();
             drawSelectionBox();
-            imGuiOverlay.render(fps, player, world);
+            imGuiOverlay.render(fps, player, world, networkManager);
             glfwSwapBuffers(windowHandle);
             glfwPollEvents();
         }

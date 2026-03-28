@@ -2,6 +2,7 @@ package com.ee.Client;
 
 import java.net.DatagramSocket;
 import java.net.DatagramPacket;
+import java.util.concurrent.atomic.AtomicLong;
 import com.ee.Common.Block;
 import com.ee.Common.Chunk;
 import com.ee.Common.CompressedChunk;
@@ -10,10 +11,12 @@ import com.ee.Common.Network.*;
 public class NetworkListener implements Runnable {
     private DatagramSocket socket;
     private ClientWorld world;
+    private AtomicLong receivedPacketCount;
 
     public NetworkListener(DatagramSocket socket, ClientWorld world) {
         this.socket = socket;
         this.world = world;
+        this.receivedPacketCount = new AtomicLong();
     }
 
     @Override
@@ -33,6 +36,7 @@ public class NetworkListener implements Runnable {
     }
 
     private void handlePacket(DatagramPacket packet) {
+        receivedPacketCount.incrementAndGet();
         byte[] data = packet.getData();
         if (data[0] == (byte) PacketType.CHUNK_RESPONSE.ordinal()) {
             processChunkResponse(packet, data);
@@ -60,5 +64,9 @@ public class NetworkListener implements Runnable {
         CompressedChunk compressedChunk = response.toCompressedChunk();
         Chunk chunk = compressedChunk.decompress();
         world.addChunk(chunk.worldPosition(), chunk);
+    }
+
+    public long receivedPacketCount() {
+        return receivedPacketCount.get();
     }
 }

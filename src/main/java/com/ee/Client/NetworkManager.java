@@ -2,6 +2,7 @@ package com.ee.Client;
 
 import java.net.DatagramSocket;
 import java.net.DatagramPacket;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -16,9 +17,19 @@ public class NetworkManager implements AutoCloseable {
     private NetworkListener listener;
     private ClientWorld world;
     private ScheduledExecutorService heartbeatScheduler;
+    private String serverHost;
+    private int serverPort;
+    private AtomicLong sentPacketCount;
 
     public NetworkManager(ClientWorld world) {
+        this(world, Config.NETWORK_SERVER_HOST, Config.NETWORK_SERVER_PORT);
+    }
+
+    public NetworkManager(ClientWorld world, String serverHost, int serverPort) {
         this.world = world;
+        this.serverHost = serverHost;
+        this.serverPort = serverPort;
+        this.sentPacketCount = new AtomicLong();
         try {
             this.socket = new DatagramSocket();
             this.listener = new NetworkListener(this.socket, this.world);
@@ -69,14 +80,30 @@ public class NetworkManager implements AutoCloseable {
     protected void sendPacket(byte[] data) {
         DatagramPacket udpPacket = new DatagramPacket(data, data.length);
         try {
-            // TODO hardcoded for now
-            udpPacket.setAddress(java.net.InetAddress.getByName("localhost"));
-            udpPacket.setPort(6767);
+            udpPacket.setAddress(java.net.InetAddress.getByName(serverHost));
+            udpPacket.setPort(serverPort);
             socket.send(udpPacket);
+            sentPacketCount.incrementAndGet();
         } catch (Exception e) {
             if (!socket.isClosed()) {
                 e.printStackTrace();
             }
         }
+    }
+
+    public String serverHost() {
+        return serverHost;
+    }
+
+    public int serverPort() {
+        return serverPort;
+    }
+
+    public long sentPacketCount() {
+        return sentPacketCount.get();
+    }
+
+    public long receivedPacketCount() {
+        return listener == null ? 0L : listener.receivedPacketCount();
     }
 }

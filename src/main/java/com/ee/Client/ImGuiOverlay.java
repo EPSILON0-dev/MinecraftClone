@@ -22,12 +22,12 @@ public class ImGuiOverlay implements AutoCloseable {
         imGuiGl3.init("#version 330 core");
     }
 
-    public void render(float fps, Player player, ClientWorld world) {
+    public void render(float fps, Player player, ClientWorld world, NetworkManager networkManager) {
         imGuiGl3.newFrame();
         imGuiGlfw.newFrame();
         ImGui.newFrame();
 
-        debugWindow(fps, player, world);
+        debugWindow(fps, player, world, networkManager);
         crosshairWindow();
 
         ImGui.render();
@@ -50,9 +50,9 @@ public class ImGuiOverlay implements AutoCloseable {
     private static int prevChunkHash = 0;
     private static int chunkCompressedSize = 0;
 
-    private void debugWindow(float fps, Player player, ClientWorld world) {
+    private void debugWindow(float fps, Player player, ClientWorld world, NetworkManager networkManager) {
         ImGui.setNextWindowPos(16.0f, 16.0f, ImGuiCond.Once);
-        ImGui.setNextWindowSize(260.0f, 300.0f, ImGuiCond.Once);
+        ImGui.setNextWindowSize(320.0f, 360.0f, ImGuiCond.Once);
         ImGui.begin("Debug Menu", ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse);
         ImGui.text(String.format("FPS: %.1f", fps));
 
@@ -78,6 +78,12 @@ public class ImGuiOverlay implements AutoCloseable {
         }
         ImGui.text(String.format("Compressed: %d bytes", chunkCompressedSize));
         prevChunkHash = hash;
+
+        ImGui.separator();
+        ImGui.text(String.format("Loaded Chunks: %d", world.loadedChunkCount()));
+        ImGui.text(String.format("Server: %s:%d", networkManager.serverHost(), networkManager.serverPort()));
+        ImGui.text(String.format("Packets Sent: %d", networkManager.sentPacketCount()));
+        ImGui.text(String.format("Packets Received: %d", networkManager.receivedPacketCount()));
         
         ImGui.separator();
         ImGui.text(String.format("Selected Block: %s", selectedBlockType));
