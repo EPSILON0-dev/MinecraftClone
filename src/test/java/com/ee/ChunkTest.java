@@ -82,8 +82,8 @@ public class ChunkTest {
 
         Vector3f translation = chunkRenderer.modelMatrix().getTranslation(new Vector3f());
 
-        assertEquals(32.0f, translation.x, 0.0001f);
+        assertEquals(16.0f, translation.x, 0.0001f);
         assertEquals(0.0f, translation.y, 0.0001f);
-        assertEquals(48.0f, translation.z, 0.0001f);
+        assertEquals(32.0f, translation.z, 0.0001f);
     }
 }

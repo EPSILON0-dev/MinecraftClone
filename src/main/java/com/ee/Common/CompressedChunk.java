@@ -62,7 +62,6 @@ public class CompressedChunk {
         try {
             inflater.inflate(decompressedData);
         } catch (DataFormatException e) {
-            e.printStackTrace();
             throw new IllegalStateException("Failed to decompress chunk data", e);
         } finally {
             inflater.end();

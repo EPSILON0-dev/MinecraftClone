@@ -253,7 +253,6 @@ public class ClientWorld {
     }
 
     public Optional<Vector2i> getNearestMissingChunk(Player player) {
-        // TODO find a better way to do that
         pruneExpiredRequestedChunks();
         Vector2i bestCandidate = new Vector2i(0, 0);
         float bestDistance = Float.MAX_VALUE;

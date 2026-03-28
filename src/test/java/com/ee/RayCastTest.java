@@ -13,10 +13,6 @@ import com.ee.Common.BlockType;
 import com.ee.Common.Chunk;
 import com.ee.Common.Config;
 
-import sun.misc.Unsafe;
-
-import java.lang.reflect.Field;
-import java.util.HashMap;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -98,11 +94,11 @@ public class RayCastTest {
     private static ClientWorld createWorld(Vector3i solidBlockPosition, BlockType solidBlockType) throws Exception {
         ClientWorld world = new ClientWorld();
         Chunk chunk = new Chunk(new Vector2i(0, 0));
-        world.addChunk(new Vector2i(0, 0), chunk);
         fillChunk(chunk, BlockType.Air);
         if (solidBlockPosition != null && solidBlockType != null) {
             chunk.setBlock(solidBlockPosition, new Block(solidBlockType));
         }
+        world.addChunk(new Vector2i(0, 0), chunk);
         return world;
     }
 
@@ -114,17 +110,5 @@ public class RayCastTest {
                 }
             }
         }
-    }
-
-    private static Unsafe getUnsafe() throws Exception {
-        Field unsafeField = Unsafe.class.getDeclaredField("theUnsafe");
-        unsafeField.setAccessible(true);
-        return (Unsafe) unsafeField.get(null);
-    }
-
-    private static void setField(Object target, String fieldName, Object value) throws Exception {
-        Field field = ClientWorld.class.getDeclaredField(fieldName);
-        field.setAccessible(true);
-        field.set(target, value);
     }
 }
