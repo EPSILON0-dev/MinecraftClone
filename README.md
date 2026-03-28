@@ -1,12 +1,8 @@
 # MCC
 
-Small Java voxel sandbox prototype built with LWJGL, OpenGL, JOML, and ImGui.
+MCC - MineCraftClone - Small Java voxel sandbox prototype built with LWJGL, OpenGL, JOML, and ImGui.
 
-## Screenshot
-
-![Game Screenshot Placeholder](docs/screenshot-placeholder.png)
-
-Replace the image above with an actual in-game screenshot later.
+![Game Screenshot Placeholder](assets/textures/ss.png)
 
 ## Current Features
 
@@ -19,6 +15,12 @@ Replace the image above with an actual in-game screenshot later.
 - Automatic unloading of chunks that stay outside render distance for too long
 - ImGui debug overlay with runtime information
 - CLI arguments for server IP, port, and render distance
+
+### Planned Features
+
+- World saving
+- Player models
+- More advanced rendering pipeline (greedy meshing, shadows, point light torches)
 
 ## Controls
 
@@ -54,49 +56,6 @@ Example on Linux:
 export JAVA_HOME=/usr/lib/jvm/java-21-openjdk
 export PATH="$JAVA_HOME/bin:$PATH"
 mvn -q -DskipTests compile
-```
-
-### Build The JAR
-
-To build the packaged JARs with Maven:
-
-```bash
-mvn -q -DskipTests package
-```
-
-The generated files will be placed in `target/`.
-
-This build now produces two runnable shaded JARs:
-
-- `target/mcc-0.1-client.jar`
-- `target/mcc-0.1-server.jar`
-
-To run the packaged server JAR:
-
-```bash
-java -jar target/mcc-0.1-server.jar --port=6767
-```
-
-To run the packaged client JAR:
-
-```bash
-java -jar target/mcc-0.1-client.jar --server-ip=localhost --server-port=6767 --render-distance=3
-```
-
-### 2. Start The Server
-
-Run the server main class with an optional port override:
-
-```text
-com.ee.Server.Main --port=6767
-```
-
-### 3. Start The Client
-
-Run the client main class with the server address and render distance:
-
-```text
-com.ee.Client.Main --server-ip=localhost --server-port=6767 --render-distance=3
 ```
 
 ## CLI Arguments
